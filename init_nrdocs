@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+TOKEN_FILE="token.txt"
+SCRIPT_PATH=$(realpath "$0")
+SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
+
+if [ ! -f "$TOKEN_FILE" ]; then
+    invenio users create --password segrdrgh -a -c ron@ron.ron
+    TOKEN=$(invenio tokens create -n token -u ron@ron.ron)
+    echo "$TOKEN" > "$TOKEN_FILE"
+else
+    TOKEN=$(<"$TOKEN_FILE")
+
+fi
+python $SCRIPT_DIR/nrdocs/_requests.py $TOKEN

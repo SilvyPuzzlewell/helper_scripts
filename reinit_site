@@ -1,0 +1,9 @@
+#!/bin/bash
+invenio db drop
+invenio db create
+invenio index destroy --yes-i-know
+invenio index init
+invenio oarepo cf init
+invenio communities custom-fields init
+invenio files location default s3://nrdocs --default
+invenio oarepo fixtures load

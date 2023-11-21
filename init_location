@@ -1,0 +1,2 @@
+#!/bin/bash
+invenio files location default s3://nrdocs --default

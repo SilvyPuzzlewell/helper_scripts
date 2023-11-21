@@ -1,0 +1,3 @@
+#!/bin/bash
+export OPENSEARCH_PORT=9400
+if 

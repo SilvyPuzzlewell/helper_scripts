@@ -1,0 +1,13 @@
+#!/bin/bash
+if [ -z "$1" ]
+then
+    # If not, use "venv" as the default name
+    ENV_NAME="venv"
+else
+    ENV_NAME="$1"
+fi
+rm -rf "$ENV_NAME"
+python3 -m venv "$ENV_NAME"
+. "$ENV_NAME/bin/activate"
+pip install -U setuptools pip wheel
+

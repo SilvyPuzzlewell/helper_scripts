@@ -1,0 +1,3 @@
+#!/bin/bash
+invenio users create --password segrdrgh -a -c ron@ron.ron
+invenio tokens create -n token1 -u ron@ron.ron
