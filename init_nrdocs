@@ -12,6 +12,6 @@ if [ ! -f "$TOKEN_FILE" ]; then
     echo "$TOKEN" > "$TOKEN_FILE"
 else
     TOKEN=$(<"$TOKEN_FILE")
-
 fi
-python $SCRIPT_DIR/nrdocs/_requests.py $TOKEN
+cd $SCRIPT_DIR
+python ./nrdocs/_requests.py $TOKEN

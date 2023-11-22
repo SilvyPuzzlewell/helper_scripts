@@ -1,4 +1,9 @@
 #!/bin/bash
+set -e
+if [ -f "token.txt" ]; then
+    echo "token deleted"
+    rm -f token.txt
+fi
 invenio db drop
 invenio db create
 invenio index destroy --yes-i-know

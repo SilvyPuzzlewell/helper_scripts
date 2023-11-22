@@ -1,9 +1,13 @@
+import logging
 import sys
 
 import requests
 import json
+import urllib3
 
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 BASE_URL = "https://127.0.0.1:5000"
+
 def json_headers(token):
     return {
         'Authorization': f'Bearer {token}',
@@ -102,6 +106,7 @@ def init_with_communities(token):
 
     #create community
     resp = requests.post(url=f'{BASE_URL}/api/communities', headers=jheader, json=SIMPLE_COMMUNITY, verify=False)
+
     assert resp.status_code == 201
     print("community created")
 
@@ -127,6 +132,7 @@ def init_with_communities(token):
     resp = requests.get(url=f"{BASE_URL}/api/communities/{comm_id}/records", headers=header, verify=False)
     assert resp.status_code == 200
     assert len(resp.json()['hits']['hits']) >= 0
+    print("community records test passed")
 
 
 if __name__ == "__main__":
