@@ -33,6 +33,19 @@ SIMPLE_COMMUNITY = {
         }
     }
 
+SIMPLE_COMMUNITY_2 = {
+        "slug": "tst4",
+        "access": {
+            "visibility": "public"
+        },
+        "metadata": {
+            "title": "Test4",
+            "type": {
+                "id": "event"
+            }
+        }
+    }
+
 COMMUNITY_CF = {
     "custom_fields": {
         "permissions": {
@@ -43,9 +56,9 @@ COMMUNITY_CF = {
                 "can_read": True,
                 "can_update": True,
                 "can_delete": True,
-                "can_add_community": True,
-                "can_remove_community": True,
-                "can_remove_record": True
+                "can_community_allows_adding_records": True,
+                "can_remove_community_from_record": True,
+                "can_remove_records_from_community": True,
             },
             "manager": {
                 "can_publish": True,
@@ -53,27 +66,27 @@ COMMUNITY_CF = {
                 "can_read": True,
                 "can_update": True,
                 "can_delete": True,
-                "can_add_community": True,
-                "can_remove_community": False,
-                "can_remove_record": True
+                "can_community_allows_adding_records": True,
+                "can_remove_community_from_record": True,
+                "can_remove_records_from_community": True,
             },
             "curator": {
                 "can_create": True,
                 "can_read": True,
                 "can_update": True,
                 "can_delete": False,
-                "can_add_community": True,
-                "can_remove_community": False,
-                "can_remove_record": False
+                "can_community_allows_adding_records": True,
+                "can_remove_community_from_record": False,
+                "can_remove_records_from_community": False,
             },
             "reader": {
                 "can_create": False,
                 "can_read": True,
                 "can_update": False,
                 "can_delete": False,
-                "can_add_community": False,
-                "can_remove_community": False,
-                "can_remove_record": False
+                "can_community_allows_adding_records": False,
+                "can_remove_community_from_record": False,
+                "can_remove_records_from_community": False,
             }
         },
         "aai_mapping": [
@@ -106,7 +119,6 @@ def init_with_communities(token):
 
     #create community
     resp = requests.post(url=f'{BASE_URL}/api/communities', headers=jheader, json=SIMPLE_COMMUNITY, verify=False)
-
     assert resp.status_code == 201
     print("community created")
 
@@ -119,6 +131,7 @@ def init_with_communities(token):
     #create record
     comm_id = requests.get(url=f'{BASE_URL}/api/communities/{COMMUNITY_SLUG}', headers=header, verify=False).json()["id"]
     resp = requests.post(url=f'{BASE_URL}/api/nr-documents', headers=jheader, json=nrdocs_sample_record() | {"community_id": comm_id}, verify=False)
+    record_id = resp.json()["id"]
     request_id = resp.json()['parent']['publish_draft']['id']
     assert resp.status_code == 201
     print("record created")
@@ -133,6 +146,41 @@ def init_with_communities(token):
     assert resp.status_code == 200
     assert len(resp.json()['hits']['hits']) >= 0
     print("community records test passed")
+
+    #create second community
+    resp = requests.post(url=f'{BASE_URL}/api/communities', headers=jheader, json=SIMPLE_COMMUNITY_2, verify=False)
+    assert resp.status_code == 201
+    print("community created")
+
+    first_community_input = {
+        "communities": [
+            {"id": "tst3"}
+        ]
+    }
+
+    second_community_input = {
+        "communities": [
+            {"id": "tst4"}
+        ]
+    }
+
+    #add second community on first record
+    #resp = requests.post(url=f'{BASE_URL}/api/nr-documents/{record_id}', headers=jheader, json=second_community_input, verify=False)
+    #assert resp.status_code == 200
+    #print("second community added on record")
+
+    #remove first community from input
+    #resp = requests.delete(url=f'{BASE_URL}/api/nr-documents/{record_id}', headers=jheader, json=first_community_input, verify=False)
+    #assert resp.status_code == 200
+    #print("second community added on record")
+
+    #remove record from first community
+
+
+    
+
+
+
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 if [ -z "$1" ]
 then
     # If not, use "venv" as the default name
-    ENV_NAME="venv"
+    ENV_NAME=".venv"
 else
     ENV_NAME="$1"
 fi
