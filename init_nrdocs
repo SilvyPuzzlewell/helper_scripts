@@ -13,5 +13,6 @@ if [ ! -f "$TOKEN_FILE" ]; then
 else
     TOKEN=$(<"$TOKEN_FILE")
 fi
+echo $TOKEN
 cd $SCRIPT_DIR
-python ./nrdocs/_requests.py $TOKEN
+python ./nrdocs/_requests_general.py $TOKEN $1
