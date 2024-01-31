@@ -2,17 +2,25 @@
 
 set -e
 
-TOKEN_FILE="token.txt"
+TOKEN_FILE1="current_token_user1.txt"
+TOKEN_FILE2="current_token_user2.txt"
 SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 
-if [ ! -f "$TOKEN_FILE" ]; then
+if [ ! -f "$TOKEN_FILE1" ]; then
     invenio users create --password segrdrgh -a -c ron@ron.ron
-    TOKEN=$(invenio tokens create -n token -u ron@ron.ron)
-    echo "$TOKEN" > "$TOKEN_FILE"
+    TOKEN1=$(invenio tokens create -n rtoken -u ron@ron.ron)
+    echo "$TOKEN" > "$TOKEN_FILE1"
 else
-    TOKEN=$(<"$TOKEN_FILE")
+    TOKEN1=$(<"$TOKEN_FILE1")
 fi
-echo $TOKEN
+if [ ! -f "$TOKEN_FILE2" ]; then
+    invenio users create --password segrdrgh -a -c sylvi@sylvi.sylvi
+    TOKEN2=$(invenio tokens create -n stoken -u sylvi@sylvi.sylvi)
+    echo "$TOKEN" > "$TOKEN_FILE2"
+else
+    TOKEN2=$(<"$TOKEN_FILE2")
+fi
+echo $TOKEN1
 cd $SCRIPT_DIR
-python ./nrdocs/_requests_general.py $TOKEN $1
+python ./nrdocs/entry_script.py $1 $2 $TOKEN1

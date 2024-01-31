@@ -1,8 +1,10 @@
 #!/bin/bash
-if [ -z "$1" ]
-then
-    # If not, use "venv" as the default name
-    ENV_NAME=".venv"
+if [ $# -eq 0 ]; then
+    ENV_NAME=".venv-builder"
+elif [ "$1" == "builder" ]; then
+    ENV_NAME=".venv-builder"
+elif [ "$1" == "tests" ]; then
+    ENV_NAME=".venv-tests"
 else
     ENV_NAME="$1"
 fi

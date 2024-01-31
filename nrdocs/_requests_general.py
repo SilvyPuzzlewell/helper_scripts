@@ -1,10 +1,10 @@
 import copy
-import logging
 import sys
 
 import requests
-import json
 import urllib3
+
+from nrdocs.utils import nrdocs_sample_record
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 BASE_URL = "https://127.0.0.1:5000"
@@ -128,8 +128,7 @@ COMMUNITY_CF = {
     }
 }
 """
-def nrdocs_sample_record():
-    return json.load(open("sample_record.json", 'r'))
+
 
 def upload_file(record_resp, headers):
     link = record_resp.json()["links"]["files"]
