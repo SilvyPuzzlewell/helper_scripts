@@ -2,25 +2,31 @@
 
 set -e
 
-TOKEN_FILE1="current_token_user1.txt"
-TOKEN_FILE2="current_token_user2.txt"
+NR_DOCS_VENV_PATH=/home/ron/prace/nr-docs/.venv/bin/activate
 SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 
+TOKEN_FILE1="current_token_user1.txt"
+TOKEN_FILE2="current_token_user2.txt"
+
+. $NR_DOCS_VENV_PATH
+cd $SCRIPT_DIR
+
 if [ ! -f "$TOKEN_FILE1" ]; then
-    invenio users create --password segrdrgh -a -c ron@ron.ron
-    TOKEN1=$(invenio tokens create -n rtoken -u ron@ron.ron)
-    echo "$TOKEN" > "$TOKEN_FILE1"
+    invenio users create --password segrdrgh -a -c ron2@ron.ron
+    TOKEN1=$(invenio tokens create -n rtoken -u ron2@ron.ron)
+    echo "$TOKEN1" > "$TOKEN_FILE1"
 else
     TOKEN1=$(<"$TOKEN_FILE1")
 fi
 if [ ! -f "$TOKEN_FILE2" ]; then
-    invenio users create --password segrdrgh -a -c sylvi@sylvi.sylvi
-    TOKEN2=$(invenio tokens create -n stoken -u sylvi@sylvi.sylvi)
-    echo "$TOKEN" > "$TOKEN_FILE2"
+    invenio users create --password segrdrgh -a -c sylvi2@sylvi.sylvi
+    TOKEN2=$(invenio tokens create -n stoken -u sylvi2@sylvi.sylvi)
+    echo "$TOKEN2" > "$TOKEN_FILE2"
 else
     TOKEN2=$(<"$TOKEN_FILE2")
 fi
-echo $TOKEN1
-cd $SCRIPT_DIR
-python ./nrdocs/entry_script.py $1 $2 $TOKEN1
+cat "$TOKEN_FILE1"
+cat "$TOKEN_FILE2"
+
+python ./nrdocs/entry_script.py $TOKEN1 $TOKEN2 $@

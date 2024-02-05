@@ -1,0 +1,2 @@
+#!/bin/bash
+/home/ron/prace/nr-docs/.venv/bin/python /home/ron/prace/nr-docs/.venv/bin/invenio run --cert /home/ron/prace/nr-docs/docker/development.crt --key /home/ron/prace/nr-docs/docker/development.key
