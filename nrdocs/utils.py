@@ -12,8 +12,8 @@ def ui_serialization_header():
     }
 
 def nrdocs_sample_record():
-    return json.load(open("sample_record2.json", 'r'))
+    return json.load(open("sample_record.json", 'r'))
 
 def nrdocs_sample_metadata():
-    return json.load(open("sample_record2.json", 'r'))["metadata"]
+    return json.load(open("sample_record.json", 'r'))["metadata"]
 BASE_URL = "https://127.0.0.1:5000"
