@@ -29,4 +29,5 @@ fi
 cat "$TOKEN_FILE1"
 cat "$TOKEN_FILE2"
 
+pip install -e .
 python ./nrdocs/entry_script.py $TOKEN1 $TOKEN2 $@

@@ -2,7 +2,7 @@ import requests
 
 from .utils import authorization_header
 
-
+# requests that need more than links for now
 def create_record(base_url, data, token):
     return requests.post(url=f'{base_url}/api/docs', headers=authorization_header(token), json=data, verify=False)
 

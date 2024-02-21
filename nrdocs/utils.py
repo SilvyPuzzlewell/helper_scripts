@@ -6,6 +6,11 @@ def authorization_header(token):
         'Authorization': f'Bearer {token}'
     }
 
+def file_content_header():
+    return {
+        'Content-Type': 'application/octet-stream'
+    }
+
 def ui_serialization_header():
     return {
         'Accept': 'application/vnd.inveniordm.v1+json'
