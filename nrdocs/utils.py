@@ -22,3 +22,11 @@ def nrdocs_sample_record():
 def nrdocs_sample_metadata():
     return json.load(open("sample_record.json", 'r'))["metadata"]
 BASE_URL = "https://127.0.0.1:5000"
+
+
+def mbdb_sample_metadata():
+    return {
+        "bli": json.load(open("/home/ron/prace/mbdb-app/sample_data/bli/BLI.json", 'r')),
+        "mst": json.load(open("/home/ron/prace/mbdb-app/sample_data/mst/MST.json", 'r')),
+        "spr": json.load(open("/home/ron/prace/mbdb-app/sample_data/spr/SPR.json", 'r')),
+    }

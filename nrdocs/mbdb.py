@@ -1,49 +1,47 @@
-import shutil
-import time
-
+from nrdocs.repo_requests import create_record, create_request
+from nrdocs.utils import BASE_URL, mbdb_sample_metadata, authorization_header
 import requests
 
-from .repo_requests import create_record, create_request
-from .utils import nrdocs_sample_record, BASE_URL, nrdocs_sample_metadata, authorization_header, \
-    ui_serialization_header, file_content_header
-
-
-def upload_file(record, token):
-    data_json = [
-    {
-        "metadata": {
-            "title": "blabla"
-        },
-        "key": "file.jpg"
-    }
-]
-    file_path = "file.jpg"
-    file = open(file_path, 'rb')
-    files = {'file': file}
-    initiate_upload = requests.post(record["links"]["files"], headers=authorization_header(token), json=data_json, verify=False)
-    upload_link = initiate_upload.json()['entries'][0]['links']['content']
-    commit_link = initiate_upload.json()['entries'][0]['links']['commit']
-    upload = requests.put(upload_link, headers=authorization_header(token)|file_content_header(), files=files, verify=False)
-    commit = requests.post(commit_link, headers=authorization_header(token), verify=False)
-    response = requests.get(upload_link, stream=True, headers=authorization_header(token), verify=False)
-    response2 = requests.get(response.raw.data.decode('utf-8'), stream=True, headers=authorization_header(token), verify=False)
-    with open('check_img.png', 'wb') as out_file:
-        shutil.copyfileobj(response.raw, out_file)
-
 def script(creator_token, receiver_token):
-    #sample_record = {"metadata": nrdocs_sample_metadata(), "files": {"enabled": False}}
-    sample_record = {"metadata": nrdocs_sample_metadata()}
-    #create record
-    resp_record = create_record(BASE_URL, sample_record, creator_token)
-    #upload_file(resp_record.json(), creator_token)
-    record_id = resp_record.json()['id']
-    if resp_record.status_code != 201:
-        print(f"wrong status code {resp_record.status_code}")
-        print(resp_record.text)
-    assert resp_record.status_code == 201
-    print("record created")
-    publish_request = requests.post(resp_record.json()['request_types'][0]['links']['actions']['create'], headers=authorization_header(creator_token), verify=False)
-    publish_request = create_request(BASE_URL, creator_token, "documents_publish_draft", "user", "2", "documents_draft", resp_record.json()["id"])
+    sample_data = mbdb_sample_metadata()
+    def create_mbdb_record(type):
+        sample_record = sample_data[type][0]["metadata"]
+        # create record
+        resp_record = create_record(BASE_URL, sample_record, creator_token, repo=f"records/{type}")
+        record_id = resp_record.json()['id']
+        if resp_record.status_code != 201:
+            print(f"wrong status code {resp_record.status_code} for record of type {type}")
+            print(resp_record.text)
+        assert resp_record.status_code == 201
+        print(f"record of type {type} created")
+        return resp_record
+
+    def publish_mbdb_record(record_id, type):
+        # todo - perhaps auto decide topic type instead of sending it in request; ie. whether this is possibe depends whether it has unique id; probably doesn't...
+        request = create_request(BASE_URL, creator_token, "publish_draft", "user", "2", f"{type}_draft",
+                       record_id)
+        request_detail = requests.get(request.json()['links']['self'],
+                                      headers=authorization_header(creator_token), verify=False).json()
+        submit_request = requests.post(request_detail['links']['actions']['submit'],
+                                       headers=authorization_header(creator_token), verify=False)
+        record = requests.get(f"{BASE_URL}/api/records/{type}/{record_id}/draft",
+                              headers=authorization_header(receiver_token),
+                              verify=False).json()
+        return requests.post(record['requests'][0]['links']['actions']['accept'],
+                               headers=authorization_header(receiver_token), verify=False)
+    mst = create_mbdb_record("mst")
+    spr = create_mbdb_record("spr")
+    bli = create_mbdb_record("bli")
+
+    #acc = publish_mbdb_record(mst.json()["id"], "mst")
+
+    global_search = requests.get(f"{BASE_URL}/api/user/search", headers=authorization_header(receiver_token), verify=False)
+    jsn = global_search.json()
+    print()
+
+
+    """
+    publish_request = create_request(BASE_URL, creator_token, "documents_draft_publish_draft", "user", "2", "documents_draft", resp_record.json()["id"])
     assert publish_request.status_code == 201
     request_detail = requests.get(publish_request.json()['links']['self'], headers=authorization_header(creator_token), verify=False).json()
     request_detail_ui_serialization = requests.get(publish_request.json()['links']['self'], headers=authorization_header(creator_token) | ui_serialization_header(), verify=False).json()
@@ -81,4 +79,4 @@ def script(creator_token, receiver_token):
                  verify=False)
     assert deleted_record.status_code == 410
     print("record deleted")
-
+    """

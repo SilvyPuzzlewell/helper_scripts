@@ -1,10 +1,15 @@
 #!/bin/bash
 set -e
-NR_DOCS_VENV_PATH=/home/ron/prace/nr-docs/.venv/bin/activate
+if [ $# -lt 1 ]; then
+    VENV_PATH=/home/ron/prace/nr-docs/.venv/bin/activate
+else
+    VENV_PATH=/home/ron/prace/$1/.venv/bin/activate
+fi
+
 SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 
-. $NR_DOCS_VENV_PATH
+. $VENV_PATH
 invenio oarepo cf init
 invenio communities custom-fields init
 invenio oarepo fixtures load

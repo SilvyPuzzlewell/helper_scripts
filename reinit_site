@@ -1,12 +1,16 @@
 #!/bin/bash
 set -e
-NR_DOCS_VENV_PATH=/home/ron/prace/nr-docs/.venv/bin/activate
+if [ $# -lt 1 ]; then
+    VENV_PATH=/home/ron/prace/nr-docs/.venv/bin/activate
+else
+    VENV_PATH=/home/ron/prace/$1/.venv/bin/activate
+fi
 SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 TOKEN_FILE1="current_token_user1.txt"
 TOKEN_FILE2="current_token_user2.txt"
 
-. $NR_DOCS_VENV_PATH
+. $VENV_PATH
 cd $SCRIPT_DIR
 
 if [ -f $TOKEN_FILE1 ]; then
@@ -24,5 +28,5 @@ invenio index destroy --yes-i-know
 invenio index init
 invenio oarepo cf init
 invenio communities custom-fields init
-invenio files location default s3://nrdocs --default
+invenio files location default s3://mbdb --default
 invenio oarepo fixtures load

@@ -2,7 +2,7 @@ import sys
 import urllib3
 import argparse
 
-from nrdocs import new_with_requests
+from nrdocs import new_with_requests, mbdb
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
