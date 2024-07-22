@@ -1,4 +1,5 @@
 import json
+import requests
 
 
 def authorization_header(token):
@@ -30,3 +31,60 @@ def mbdb_sample_metadata():
         "mst": json.load(open("/home/ron/prace/mbdb-app/sample_data/mst/MST.json", 'r')),
         "spr": json.load(open("/home/ron/prace/mbdb-app/sample_data/spr/SPR.json", 'r')),
     }
+
+
+def _find_request_from_search(search_response, queried_id):
+    hits = search_response.json()["hits"]["hits"]
+    for hit in hits:
+        if hit["id"] == queried_id:
+            return hit
+    return None
+
+def _find_request_from_search_by_type(search_response, type, topic=None):
+    hits = search_response.json()["hits"]["hits"]
+    for hit in hits:
+        if hit["type"] == type:
+            if topic is not None and hit["topic"] == topic:
+                return hit
+            elif topic is None:
+                return hit
+    return None
+
+def _find_request_by_type_id(request_types, type_id):
+    for type in request_types:
+        if type["type_id"] == type_id:
+            return type
+    return None
+
+def create_request_on_record(record_resp, request_type, token, data=None):
+    if data:
+        request = requests.post(_find_request_by_type_id(record_resp.json()["expanded"]["request_types"], request_type)["links"]["actions"]["create"],
+                                    headers=authorization_header(token), json=data, verify=False)
+    else:
+        request = requests.post(
+        _find_request_by_type_id(record_resp.json()["expanded"]["request_types"], request_type)["links"]["actions"]["create"],
+        headers=authorization_header(token), json=data, verify=False)
+    return request
+
+
+def upload_file(record_data, token):
+    data_json = [
+    {
+        "metadata": {
+            "title": "blabla"
+        },
+        "key": "file.jpg"
+    }
+]
+    file_path = "file.jpg"
+    file = open(file_path, 'rb')
+    files = {'file': file}
+    initiate_upload = requests.post(record_data["links"]["files"], headers=authorization_header(token), json=data_json, verify=False)
+    upload_link = initiate_upload.json()['entries'][0]['links']['content']
+    commit_link = initiate_upload.json()['entries'][0]['links']['commit']
+    upload = requests.put(upload_link, headers=authorization_header(token)|file_content_header(), files=files, verify=False)
+    commit = requests.post(commit_link, headers=authorization_header(token), verify=False)
+    response = requests.get(upload_link, stream=True, headers=authorization_header(token), verify=False)
+    #response2 = requests.get(response.raw.data.decode('utf-8'), stream=True, headers=authorization_header(token), verify=False)
+    #with open('check_img.png', 'wb') as out_file:
+    #    shutil.copyfileobj(response.raw, out_file)

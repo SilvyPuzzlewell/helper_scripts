@@ -17,6 +17,9 @@ __pycache__/
 # Distribution / packaging
 .Python
 .venv*
+current_token_user*
+sample_record*
+venv/
 env/
 build/
 develop-eggs/

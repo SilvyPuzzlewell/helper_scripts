@@ -26,11 +26,14 @@ if [ ! -f "$TOKEN_FILE2" ]; then
     invenio users create --password segrdrgh -a -c sylvi@sylvi.sylvi
     TOKEN2=$(invenio tokens create -n stoken -u sylvi@sylvi.sylvi)
     echo "$TOKEN2" > "$TOKEN_FILE2"
+    invenio roles create curators
+    invenio roles add sylvi@sylvi.sylvi curators
 else
     TOKEN2=$(<"$TOKEN_FILE2")
 fi
 cat "$TOKEN_FILE1"
 cat "$TOKEN_FILE2"
 
+
 pip install -e .
-python ./nrdocs/entry_script.py $TOKEN1 $TOKEN2 $@
+python ./nrdocs/entry_script.py $@
