@@ -1,0 +1,2 @@
+#!/bin/bash
+/home/ron/prace/nr-docs/.nrp/oarepo-model-builder-documents/bin/oarepo-compile-model -vvv /home/ron/prace/nr-docs/models/documents.yaml --output-directory /tmp/tmpvuwnkysg
