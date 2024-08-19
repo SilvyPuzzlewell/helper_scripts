@@ -7,22 +7,18 @@ else
 fi
 SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
-TOKEN_FILE1="current_token_user1.txt"
-TOKEN_FILE2="current_token_user2.txt"
 
 . $VENV_PATH
 cd $SCRIPT_DIR
 
-if [ -f $TOKEN_FILE1 ]; then
-    echo "token1 deleted"
-    rm -f $TOKEN_FILE1
-fi
+for file in "$(pwd)"/$current_token_*; do
+  if [ -e "$file" ]; then
+    echo "Deleting: $file"
+    rm $file
+  fi
+done
 
-if [ -f $TOKEN_FILE2 ]; then
-    echo "token2 deleted"
-    rm -f $TOKEN_FILE2
-fi
-invenio db drop
+invenio db drop --yes-i-know
 invenio db create
 invenio index destroy --yes-i-know
 invenio index init

@@ -133,33 +133,43 @@ def change_workflow_test(token, community_id, community_data):
     assert result_nonexistent.status_code == 400
     return
 
-def script(owner_token, curator_token, *args, **kwargs):
+def script(owner_token, curator_token, submitter_token, **kwargs):
     community_id = create_community(owner_token)["id"]
     invite('2', community_id, "curator", owner_token, curator_token)
+    invite('3', community_id, "submitter", owner_token, submitter_token)
     community2_id =create_community(owner_token, community_dict=COMMUNITY_DICT2)["id"]
     invite('2', community2_id, "curator", owner_token, curator_token)
+    invite('3', community_id, "submitter", owner_token, submitter_token)
     community3_id =create_community(owner_token, community_dict=COMMUNITY_DICT3)["id"]
     invite('2', community3_id, "curator", owner_token, curator_token)
+    invite('3', community_id, "submitter", owner_token, submitter_token)
 
     sample_record = {"metadata": nrdocs_sample_metadata()}
 
     # create is temporarily auth user
     # test direct create disabled
-    resp_record = create_record(BASE_URL, sample_record, owner_token)
+    resp_record = create_record(BASE_URL, sample_record, submitter_token)
     assert resp_record.status_code == 400
     # test direct create in community allowed
-    resp_record = create_record(BASE_URL, sample_record|{"parent":{"communities": {"default": community_id}}}, owner_token)
+    resp_record = create_record(BASE_URL, sample_record|{"parent":{"communities": {"default": community_id}}}, submitter_token)
     assert resp_record.status_code == 201
 
+
+
     change_workflow_test(owner_token, community_id, requests.get(f"{BASE_URL}/api/communities/{community_id}", headers=authorization_header(owner_token), verify=False).json())
-    resp_record = create_record_in_community(BASE_URL, sample_record, token=curator_token, community_id=community_id, repo="docs")
+    resp_record = create_record_in_community(BASE_URL, sample_record, token=submitter_token, community_id=community_id, repo="docs")
     assert resp_record.status_code == 201
-    do_request(receiver_token=curator_token, creator_token=owner_token, record_id=resp_record.json()["id"], type='publish_draft', is_draft=True, create_forbidden=True)
+    do_request(receiver_token=curator_token, creator_token=submitter_token, record_id=resp_record.json()["id"], type='publish_draft', is_draft=True, create_forbidden=True)
+
+
 
     resp_record = create_record_in_community(BASE_URL, sample_record, token=owner_token, community_id=community_id, repo="docs")
     record_id = resp_record.json()["id"]
     upload_file(resp_record.json(), owner_token)
     time.sleep(2)
+
+    resp_user_search = requests.get(f"{BASE_URL}/api/user/search", headers=authorization_header(owner_token), verify=False)
+    print()
     #only owner is also record owner and curator is allowed
     do_request(receiver_token=curator_token, creator_token=owner_token, record_id=record_id, type='publish_draft', is_draft=True)
     """

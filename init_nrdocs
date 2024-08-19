@@ -6,34 +6,22 @@ if [ $# -lt 1 ]; then
 else
     VENV_PATH=/home/ron/prace/$1/.venv/bin/activate
 fi
+
 SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 
-TOKEN_FILE1="current_token_user1.txt"
-TOKEN_FILE2="current_token_user2.txt"
+users=("ron@ron.ron", "sylvi@sylvi.sylvi", "submitter@submitter.sylvi")
+token_files=("current_token_user1.txt" "current_token_user2.txt" "current_token_user3.txt")
+
 echo $VENV_PATH
 . $VENV_PATH
 cd $SCRIPT_DIR
 
-if [ ! -f "$TOKEN_FILE1" ]; then
-    invenio users create --password segrdrgh -a -c ron@ron.ron
-    TOKEN1=$(invenio tokens create -n rtoken -u ron@ron.ron)
-    echo "$TOKEN1" > "$TOKEN_FILE1"
-else
-    TOKEN1=$(<"$TOKEN_FILE1")
-fi
-if [ ! -f "$TOKEN_FILE2" ]; then
-    invenio users create --password segrdrgh -a -c sylvi@sylvi.sylvi
-    TOKEN2=$(invenio tokens create -n stoken -u sylvi@sylvi.sylvi)
-    echo "$TOKEN2" > "$TOKEN_FILE2"
-    invenio roles create curators
-    invenio roles add sylvi@sylvi.sylvi curators
-else
-    TOKEN2=$(<"$TOKEN_FILE2")
-fi
-cat "$TOKEN_FILE1"
-cat "$TOKEN_FILE2"
-
+for i in ${!token_files[@]}; do
+   invenio users create --password segrdrgh -a -c ${users[$i]}
+   TOKEN=$(invenio tokens create -n ${i}token -u ${users[$i]}
+   echo "$TOKEN3" > ${token_files[$i]}
+done
 
 pip install -e .
 python ./nrdocs/entry_script.py $@

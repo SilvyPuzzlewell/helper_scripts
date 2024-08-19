@@ -3,7 +3,7 @@ from pathlib import Path
 
 import urllib3
 import argparse
-
+import glob
 from nrdocs import new_with_requests, mbdb, communities, workflows
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -16,9 +16,11 @@ def current_function():
 
 def read_tokens():
     path = Path(__file__).parent.parent
-    token1 = str(open(f"{path}/current_token_user1.txt", 'r').read()).replace("\n", "")
-    token2 = str(open(f"{path}/current_token_user2.txt", 'r').read()).replace("\n", "")
-    return [token1, token2]
+    token_files = glob.glob(f"{str(path)}/current_token_*")
+    ret = []
+    for file in token_files:
+        ret.append(str(open(file, 'r').read()).replace("\n", ""))
+    return ret
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
