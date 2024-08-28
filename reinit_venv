@@ -12,4 +12,5 @@ rm -rf "$ENV_NAME"
 python3 -m venv "$ENV_NAME"
 . "$ENV_NAME/bin/activate"
 pip install -U setuptools pip wheel
+pip install /home/ron/prace/global_scripts
 

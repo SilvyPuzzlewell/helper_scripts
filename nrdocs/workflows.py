@@ -175,8 +175,8 @@ def new_version_test(sample_record, token, community_id):
     results = [r for r in user_results if r["parent"]["id"] == parent_id]
     assert len(results) == 2
 
-def cleanup(submitter_token, curator_token):
-    for token in (submitter_token, curator_token):
+def cleanup(curator_token, *tokens):
+    for token in (curator_token, *tokens):
         records = requests.get(f"{BASE_URL}/api/user/docs?size=1000", headers=authorization_header(token),
                                         verify=False).json()["hits"]["hits"]
         for record in records:
@@ -208,7 +208,7 @@ def test_search(curator_token, submitter_token, community_id):
     resp_curator_user_search = requests.get(f"{BASE_URL}/api/user/docs", headers=authorization_header(curator_token),
                                verify=False).json()["hits"]["hits"]
 
-    resp_sub_user_community_search = requests.get(f"{BASE_URL}/api/communities/{community_id}/docs",
+    resp_sub_user_community_search = requests.get(f"{BASE_URL}/api/communities/{community_id}/user/docs",
                                                   headers=authorization_header(submitter_token),
                                verify=False).json()["hits"]["hits"]
 
@@ -266,10 +266,6 @@ def script(owner_token, curator_token, submitter_token, *args, **kwargs):
     assert published_read.status_code == 200
     time.sleep(5)
     test_search(curator_token, submitter_token, community_id)
-
-
-
-
 
     record_published_by_autoapprove = create_record_in_community(BASE_URL, sample_record, token=submitter_token, community_id=community_id, repo="docs")
     record_published_by_autoapprove_id = record_published_by_autoapprove.json()["id"]
