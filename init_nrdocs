@@ -1,27 +1,32 @@
 #!/bin/bash
-
 set -e
-if [ $# -lt 1 ]; then
-    VENV_PATH=/home/ron/prace/nr-docs/.venv/bin/activate
-else
-    VENV_PATH=/home/ron/prace/$1/.venv/bin/activate
-fi
 
 SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
+cd "$SCRIPT_DIR"
 
-users=("ron@ron.ron", "sylvi@sylvi.sylvi", "submitter@submitter.sylvi")
-token_files=("current_token_user1.txt" "current_token_user2.txt" "current_token_user3.txt")
-
+VENV_PATH=$(get_nr_docs_dir "$@")
 echo $VENV_PATH
 . $VENV_PATH
-cd $SCRIPT_DIR
+
+users=("ron@ron.ron" "sylvi@sylvi.sylvi" "submitter@submitter.sylvi")
+token_files=("current_token_user0.txt" "current_token_user1.txt" "current_token_user2.txt")
 
 for i in ${!token_files[@]}; do
-   invenio users create --password segrdrgh -a -c ${users[$i]}
-   TOKEN=$(invenio tokens create -n ${i}token -u ${users[$i]}
-   echo "$TOKEN3" > ${token_files[$i]}
+    echo "creating user: ${users[$i]}"
+    echo "save token token${i} into ${token_files[$i]}"
+    echo "invenio users create --password segrdrgh -a -c ${users[$i]}"
+    
+    invenio users create --password segrdrgh -a -c ${users[$i]}
+    TOKEN=$(invenio tokens create -n token${i} -u ${users[$i]})
+    echo "$TOKEN" > ${token_files[$i]}
 done
 
 pip install -e .
-python ./nrdocs/entry_script.py $@
+
+for ARGUMENT in "$@"; do
+  if [ "$ARGUMENT" == "run" ]; then
+    python ./nrdocs/entry_script.py $@
+  fi
+done
+

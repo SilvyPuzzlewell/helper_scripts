@@ -17,6 +17,7 @@ def current_function():
 def read_tokens():
     path = Path(__file__).parent.parent
     token_files = glob.glob(f"{str(path)}/current_token_*")
+    token_files.sort()
     ret = []
     for file in token_files:
         ret.append(str(open(file, 'r').read()).replace("\n", ""))
