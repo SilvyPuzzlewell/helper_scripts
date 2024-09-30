@@ -1,0 +1,2 @@
+#!/bin/bash
+pip install -e ./tests/thesis --config-settings editable_mode=compat
