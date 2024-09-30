@@ -13,7 +13,6 @@ import importlib
 
 def current_function():
     return workflows.script
-
 def read_tokens():
     path = Path(__file__).parent.parent
     token_files = glob.glob(f"{str(path)}/current_token_*")

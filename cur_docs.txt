@@ -1,1 +1,1 @@
-/home/ron/prace/nr-docs-cw/.venv/bin/activate
+/home/ron/prace/nr-docs/.venv/bin/activate

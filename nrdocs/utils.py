@@ -18,12 +18,15 @@ def ui_serialization_header():
     }
 
 def nrdocs_sample_record():
-    return json.load(open("sample_record.json", 'r'))
+    return json.load(open("sample_record_affiliations.json", 'r'))
 
 def nrdocs_sample_metadata():
-    return json.load(open("sample_record.json", 'r'))["metadata"]
-BASE_URL = "https://127.0.0.1:5000"
+    return json.load(open("sample_record_affiliations.json", 'r'))["metadata"]
 
+def nrdocs_sample_matadata_missing_required_fields():
+    return json.load(open("broken_sample_record.json", 'r'))["metadata"]
+
+BASE_URL = "https://127.0.0.1:5000"
 
 def mbdb_sample_metadata():
     return {
@@ -50,19 +53,23 @@ def _find_request_from_search_by_type(search_response, type, topic=None):
                 return hit
     return None
 
-def _find_request_by_type_id(request_types, type_id):
+def _find_request_by_type_id(request_types, type_id, custom_key=""):
     for type in request_types:
-        if type["type_id"] == type_id:
-            return type
+        if not custom_key:
+            if type["type_id"] == type_id:
+                return type
+        else:
+            if type[custom_key] == type_id:
+                return type
     return None
 
-def create_request_on_record(record_resp, request_type, token, data=None):
+def create_request_on_record(applicable_requests, request_type, token, data=None):
     if data:
-        request = requests.post(_find_request_by_type_id(record_resp.json()["expanded"]["request_types"], request_type)["links"]["actions"]["create"],
+        request = requests.post(_find_request_by_type_id(applicable_requests, request_type)["links"]["actions"]["create"],
                                     headers=authorization_header(token), json=data, verify=False)
     else:
         request = requests.post(
-        _find_request_by_type_id(record_resp.json()["expanded"]["request_types"], request_type)["links"]["actions"]["create"],
+        _find_request_by_type_id(applicable_requests, request_type)["links"]["actions"]["create"],
         headers=authorization_header(token), json=data, verify=False)
     return request
 
