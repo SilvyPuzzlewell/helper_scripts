@@ -1,0 +1,135 @@
+{
+  "$schema": "local://documents-1.0.0.json",
+  "created": "2024-09-02T11:59:41.400219+00:00",
+  "files": {
+    "enabled": true
+  },
+  "id": "6d5db-jg282",
+  "links": {
+    "applicable-requests": "https://127.0.0.1:5000/api/docs/6d5db-jg282/draft/requests/applicable",
+    "communities": {
+      "9dd62574-c013-4c47-bb7d-ba89c9ea1d44": {
+        "self": "https://127.0.0.1:5000/api/communities/9dd62574-c013-4c47-bb7d-ba89c9ea1d44",
+        "self_html": "https://127.0.0.1:5000/communities/generic/records"
+      }
+    },
+    "draft": "https://127.0.0.1:5000/api/docs/6d5db-jg282/draft",
+    "edit_html": "https://127.0.0.1:5000/docs/6d5db-jg282/edit",
+    "files": "https://127.0.0.1:5000/api/docs/6d5db-jg282/draft/files",
+    "latest": "https://127.0.0.1:5000/api/docs/6d5db-jg282/versions/latest",
+    "latest_html": "https://127.0.0.1:5000/docs/6d5db-jg282/latest",
+    "publish": "https://127.0.0.1:5000/api/docs/6d5db-jg282/draft/actions/publish",
+    "record": "https://127.0.0.1:5000/api/docs/6d5db-jg282",
+    "requests": "https://127.0.0.1:5000/api/docs/6d5db-jg282/draft/requests",
+    "self": "https://127.0.0.1:5000/api/docs/6d5db-jg282/draft",
+    "self_html": "https://127.0.0.1:5000/docs/6d5db-jg282/preview",
+    "versions": "https://127.0.0.1:5000/api/docs/6d5db-jg282/versions"
+  },
+  "metadata": {
+    "abstract": [
+      {
+        "lang": "en",
+        "value": "<p>blablabla</p>The contribution deals with a stochastic process which cumulates random increments at random moments. We derive its martingale - compensator decomposition and then we propose the estimator of characteristics of distribution of increments. An application deals with the process of growing damage of a technical device leading to a break of device when cumulated damage exceeds a certain level. We also discuss the problem of prediction of the cumulative process behaviour."
+      }
+    ],
+    "accessRights": {
+      "@v": "66b48d18-6c7c-474a-af76-9fda3b6273bb::1",
+      "id": "c_abf2",
+      "title": {
+        "cs": "otev\u0159en\u00fd p\u0159\u00edstup",
+        "en": "open access"
+      }
+    },
+    "contributors": [
+     {
+        "person_or_org": {
+          "family_name": "Brown",
+          "given_name": "Troy",
+          "type": "personal"
+        }
+      },
+      {
+        "person_or_org": {
+          "family_name": "Collins",
+          "given_name": "Thomas",
+          "identifiers": [
+            {"scheme": "orcid", "identifier": "0000-0002-1825-0097", "url": "https://orcid.org/0000-0002-1825-0097"}
+          ],
+          "name": "Collins, Thomas",
+          "type": "personal"
+        },
+        "affiliations": [
+          {
+            "@v": "bd82a3bf-0685-4ac6-b85d-507b4d3b6c7b::1",
+            "hierarchy": {
+              "ancestors": [],
+              "ancestors_or_self": [
+                "archeologicky-ustav-av-cr-praha"
+              ],
+              "leaf": true,
+              "level": 1,
+              "title": [
+                {
+                  "cs": "Archeologick\u00fd \u00fastav AV \u010cR, Praha",
+                  "en": "Institute of Archaeology of the CAS, Prague"
+                }
+              ]
+            },
+            "id": "archeologicky-ustav-av-cr-praha",
+            "title": {
+              "cs": "Archeologick\u00fd \u00fastav AV \u010cR, Praha",
+              "en": "Institute of Archaeology of the CAS, Prague"
+            }
+          }
+        ]
+      }
+    ],
+    "creators": [
+      {
+        "person_or_org": {
+          "family_name": "Lalok",
+          "given_name": "Divny",
+          "type": "personal"
+        }
+      }
+    ],
+    "languages": [
+      {
+        "@v": "2ec2e343-9c09-4240-8474-905aeb234f57::1",
+        "id": "cs",
+        "title": {
+          "cs": "\u010de\u0161tina",
+          "en": "Czech"
+        }
+      },
+      {
+        "@v": "bf1ea61e-5867-4c88-883a-c35e2a4d6089::1",
+        "id": "en",
+        "title": {
+          "cs": "angli\u010dtina",
+          "en": "English"
+        }
+      }
+    ],
+    "resourceType": {
+      "@v": "0cfbffc8-ed1c-47b2-9f94-33de0e5040bd::1",
+      "id": "article",
+      "title": {
+        "cs": "\u010cl\u00e1nek",
+        "en": "Article"
+      }
+    },
+    "title": "lallalala",
+    "version": "first"
+  },
+  "parent": {
+    "communities": {
+      "default": "9dd62574-c013-4c47-bb7d-ba89c9ea1d44",
+      "ids": [
+        "9dd62574-c013-4c47-bb7d-ba89c9ea1d44"
+      ]
+    },
+    "id": "vt1bw-0dp70",
+    "workflow": "default"
+  }
+}

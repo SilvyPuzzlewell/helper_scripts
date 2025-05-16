@@ -1,36 +1,49 @@
 #!/bin/bash
-
 set -e
-if [ $# -lt 1 ]; then
-    VENV_PATH=/home/ron/prace/nr-docs/.venv/bin/activate
-else
-    VENV_PATH=/home/ron/prace/$1/.venv/bin/activate
-fi
+
 SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
+cd "$SCRIPT_DIR"
 
-TOKEN_FILE1="current_token_user1.txt"
-TOKEN_FILE2="current_token_user2.txt"
+VENV_PATH=$(get_nr_docs_dir "$@")
 echo $VENV_PATH
 . $VENV_PATH
-cd $SCRIPT_DIR
 
-if [ ! -f "$TOKEN_FILE1" ]; then
-    invenio users create --password segrdrgh -a -c ron@ron.ron
-    TOKEN1=$(invenio tokens create -n rtoken -u ron@ron.ron)
-    echo "$TOKEN1" > "$TOKEN_FILE1"
-else
-    TOKEN1=$(<"$TOKEN_FILE1")
-fi
-if [ ! -f "$TOKEN_FILE2" ]; then
-    invenio users create --password segrdrgh -a -c sylvi@sylvi.sylvi
-    TOKEN2=$(invenio tokens create -n stoken -u sylvi@sylvi.sylvi)
-    echo "$TOKEN2" > "$TOKEN_FILE2"
-else
-    TOKEN2=$(<"$TOKEN_FILE2")
-fi
-cat "$TOKEN_FILE1"
-cat "$TOKEN_FILE2"
+users=("ron@ron.ron" "sylvi@sylvi.sylvi" "submitter@submitter.sylvi" "nocommunity@notafed.gov")
+token_files=("current_token_user0.txt" "current_token_user1.txt" "current_token_user2.txt" "current_token_user3.txt")
+
+for i in ${!token_files[@]}; do
+    echo "creating user: ${users[$i]}"
+    echo "save token token${i} into ${token_files[$i]}"
+    echo "invenio users create --password segrdrgh -a -c ${users[$i]}"
+
+    invenio users create --password segrdrgh -a -c ${users[$i]}
+    TOKEN=$(invenio tokens create -n token${i} -u ${users[$i]})
+    echo "$TOKEN" > ${token_files[$i]}
+done
+
+invenio access allow administration-access user "sylvi@sylvi.sylvi"
+invenio access allow administration-moderation user "sylvi@sylvi.sylvi"
+
+invenio oarepo communities create generic "Obecná komunita"
+invenio oarepo communities create pilsencommune "pilsen commune"
+invenio oarepo communities create brnocommune "brno commune"
+
+invenio oarepo communities members add generic "ron@ron.ron" owner
+invenio oarepo communities members add generic "sylvi@sylvi.sylvi" curator
+invenio oarepo communities members add generic "submitter@submitter.sylvi" submitter
+invenio oarepo communities members add pilsencommune "ron@ron.ron" owner
+invenio oarepo communities members add pilsencommune "sylvi@sylvi.sylvi" curator
+invenio oarepo communities members add pilsencommune "submitter@submitter.sylvi" submitter
+invenio oarepo communities members add brnocommune "ron@ron.ron" owner
+invenio oarepo communities members add brnocommune "sylvi@sylvi.sylvi" curator
+invenio oarepo communities members add brnocommune "submitter@submitter.sylvi" submitter
 
 pip install -e .
-python ./nrdocs/entry_script.py $TOKEN1 $TOKEN2 $@
+
+for ARGUMENT in "$@"; do
+  if [ "$ARGUMENT" == "run" ]; then
+    python ./nrdocs/entry_script.py $@
+  fi
+done
+

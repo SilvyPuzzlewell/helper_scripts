@@ -1,32 +1,27 @@
 #!/bin/bash
 set -e
-if [ $# -lt 1 ]; then
-    VENV_PATH=/home/ron/prace/nr-docs/.venv/bin/activate
-else
-    VENV_PATH=/home/ron/prace/$1/.venv/bin/activate
-fi
+
 SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
-TOKEN_FILE1="current_token_user1.txt"
-TOKEN_FILE2="current_token_user2.txt"
+cd "$SCRIPT_DIR"
 
+VENV_PATH=$(get_nr_docs_dir "$@")
 . $VENV_PATH
-cd $SCRIPT_DIR
 
-if [ -f $TOKEN_FILE1 ]; then
-    echo "token1 deleted"
-    rm -f $TOKEN_FILE1
-fi
+for file in "$(pwd)"/current_token_*; do
+  if [ -e "$file" ]; then
+    echo "Deleting: $file"
+    rm $file
+  fi
+done
 
-if [ -f $TOKEN_FILE2 ]; then
-    echo "token2 deleted"
-    rm -f $TOKEN_FILE2
-fi
-invenio db drop
+invenio db drop --yes-i-know
 invenio db create
 invenio index destroy --yes-i-know
 invenio index init
 invenio oarepo cf init
 invenio communities custom-fields init
-invenio files location default s3://mbdb --default
-invenio oarepo fixtures load
+invenio files location default s3://default --default
+invenio oarepo fixtures load --batch-size 1000 --verbose
+
+invenio oarepo fixtures load --no-system-fixtures /home/ron/prace/nr-docs/fixtures --batch-size 1000 --verbose
