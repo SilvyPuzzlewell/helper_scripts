@@ -23,6 +23,9 @@ def nrdocs_sample_record():
 def nrdocs_sample_metadata():
     return json.load(open("sample_record_affiliations.json", 'r'))["metadata"]
 
+def nrdocs_sample_metadata_custom(filename):
+    return json.load(open(filename, 'r'))["metadata"]
+
 def nrdocs_sample_matadata_missing_required_fields():
     return json.load(open("broken_sample_record.json", 'r'))["metadata"]
 
