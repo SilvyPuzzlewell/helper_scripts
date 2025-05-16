@@ -1,0 +1,2 @@
+#!/bin/bash
+pip install -e $1 --config-settings editable_mode=compat

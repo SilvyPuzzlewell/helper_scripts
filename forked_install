@@ -1,0 +1,2 @@
+#!/bin/bash
+pip install https://github.com/oarepo/$1/archive/$2.zip

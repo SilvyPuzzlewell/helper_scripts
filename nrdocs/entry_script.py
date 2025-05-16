@@ -1,8 +1,10 @@
 import sys
+from pathlib import Path
+
 import urllib3
 import argparse
-
-from nrdocs import new_with_requests, mbdb
+import glob
+from nrdocs import new_with_requests, mbdb, communities, workflows
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -10,7 +12,15 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import importlib
 
 def current_function():
-    return new_with_requests.script
+    return workflows.script
+def read_tokens():
+    path = Path(__file__).parent.parent
+    token_files = glob.glob(f"{str(path)}/current_token_*")
+    token_files.sort()
+    ret = []
+    for file in token_files:
+        ret.append(str(open(file, 'r').read()).replace("\n", ""))
+    return ret
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -24,7 +34,7 @@ if __name__ == "__main__":
         function_to_call = getattr(module, func)
     else:
         function_to_call = current_function()
-
+    tokens = read_tokens()
     # Call the function if it exists
     if callable(function_to_call):
-        function_to_call(*sys.argv[1:])
+        function_to_call(*tokens, *sys.argv[1:])

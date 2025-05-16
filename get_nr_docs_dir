@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ $# -gt 0 ]; then
+  VENV_PATH=/home/ron/prace/$1/.venv/bin/activate
+elif [ -n "$(<cur_docs.txt)" ]; then
+  VENV_PATH="$(<cur_docs.txt)"
+else
+  VENV_PATH=/home/ron/prace/nr-docs/.venv/bin/activate
+fi
+echo $VENV_PATH

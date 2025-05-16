@@ -9,8 +9,8 @@ VENV_PATH=$(get_nr_docs_dir "$@")
 echo $VENV_PATH
 . $VENV_PATH
 
-users=("ron@ron.ron" "sylvi@sylvi.sylvi" "submitter@submitter.sylvi" "nocommunity@notafed.gov")
-token_files=("current_token_user0.txt" "current_token_user1.txt" "current_token_user2.txt" "current_token_user3.txt")
+users=("ron@ron.ron" "sylvi@sylvi.sylvi" "submitter@submitter.sylvi")
+token_files=("current_token_user0.txt" "current_token_user1.txt" "current_token_user2.txt")
 
 for i in ${!token_files[@]}; do
     echo "creating user: ${users[$i]}"
@@ -21,23 +21,6 @@ for i in ${!token_files[@]}; do
     TOKEN=$(invenio tokens create -n token${i} -u ${users[$i]})
     echo "$TOKEN" > ${token_files[$i]}
 done
-
-invenio access allow administration-access user "sylvi@sylvi.sylvi"
-invenio access allow administration-moderation user "sylvi@sylvi.sylvi"
-
-invenio oarepo communities create generic "Obecná komunita"
-invenio oarepo communities create pilsencommune "pilsen commune"
-invenio oarepo communities create brnocommune "brno commune"
-
-invenio oarepo communities members add generic "ron@ron.ron" owner
-invenio oarepo communities members add generic "sylvi@sylvi.sylvi" curator
-invenio oarepo communities members add generic "submitter@submitter.sylvi" submitter
-invenio oarepo communities members add pilsencommune "ron@ron.ron" owner
-invenio oarepo communities members add pilsencommune "sylvi@sylvi.sylvi" curator
-invenio oarepo communities members add pilsencommune "submitter@submitter.sylvi" submitter
-invenio oarepo communities members add brnocommune "ron@ron.ron" owner
-invenio oarepo communities members add brnocommune "sylvi@sylvi.sylvi" curator
-invenio oarepo communities members add brnocommune "submitter@submitter.sylvi" submitter
 
 pip install -e .
 

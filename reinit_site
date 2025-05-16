@@ -25,3 +25,4 @@ invenio files location default s3://default --default
 invenio oarepo fixtures load --batch-size 1000 --verbose
 
 invenio oarepo fixtures load --no-system-fixtures /home/ron/prace/nr-docs/fixtures --batch-size 1000 --verbose
+
