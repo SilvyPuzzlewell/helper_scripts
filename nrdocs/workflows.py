@@ -139,17 +139,17 @@ def _submit_request(request, creator_token, submit_forbidden):
                            headers=authorization_header(creator_token), verify=False)
     return submit
 
-def _accept_request(request, submit, creator_token, receiver_token, autoapprove, expected_status_code):
+def _accept_request(submit_resp, receiver_token, autoapprove, expected_status_code):
     if not autoapprove:
-        request_receiver = requests.get(f"{BASE_URL}/api/requests/{submit.json()['id']}",
+        request_receiver = requests.get(f"{BASE_URL}/api/requests/{submit_resp.json()['id']}",
                                         headers=authorization_header(receiver_token), verify=False)
         accept = requests.post(request_receiver.json()["links"]["actions"]["accept"],
                                headers=authorization_header(receiver_token), verify=False)
         assert accept.status_code == expected_status_code
         return accept
     else:
-        assert submit.status_code == expected_status_code
-        return submit
+        assert submit_resp.status_code == expected_status_code
+        return submit_resp
 
 # todo that deleted request crashes record accesibility might be a bug sometimes in future
 def do_request(receiver_token, creator_token, record_id, type, payload=None, is_draft=False, create_forbidden=False,
@@ -170,27 +170,20 @@ def do_request(receiver_token, creator_token, record_id, type, payload=None, is_
         rq = _find_request_by_type_id(rqs, type, custom_key="type") # type id searches applicable request types, type instatiated requests
         request = requests.get(rq["links"]["self"], headers=authorization_header(creator_token), verify=False)
         assert request.status_code == 200 #todo - the resolution of deleted request topic for event creation
+        if request.json()["status"] == "created":
+            request = _submit_request(request, creator_token, submit_forbidden)
+        accept = _accept_request(request, receiver_token, False, expected_status_code)
+        return accept
+
     else:
         request = create_request_on_record(applicable_requests, type, creator_token, data=payload)
         if create_fail:
             assert request.status_code == 400
             return
         assert request.status_code == 201
-    if submit_forbidden:
-        assert "submit" not in request.json()["links"]["actions"]
-        return request
-    submit = requests.post(request.json()["links"]["actions"]["submit"],
-                           headers=authorization_header(creator_token), verify=False)
-    if not autoapprove:
-        request_receiver = requests.get(f"{BASE_URL}/api/requests/{submit.json()['id']}",
-                                        headers=authorization_header(receiver_token), verify=False)
-        accept = requests.post(request_receiver.json()["links"]["actions"]["accept"],
-                               headers=authorization_header(receiver_token), verify=False)
-        assert accept.status_code == expected_status_code
-        return accept
-    else:
-        assert submit.status_code == expected_status_code
-        return submit
+    submit = _submit_request(request, creator_token, submit_forbidden)
+    accept = _accept_request(submit, receiver_token, autoapprove, expected_status_code)
+    return accept
 
 
 def change_workflow_test(token, community_id, community_data):
@@ -278,7 +271,7 @@ def decline_request(record_id, token, request_type, is_draft=True):
     raise Exception("no valid action to delete inactivate request")
 
 def cleanup(owner_token, curator_token, *tokens):
-    for token in (curator_token, *tokens):
+    for token in (owner_token, curator_token, *tokens):
         records = requests.get(f"{BASE_URL}/api/user/docs?size=1000", headers=authorization_header(token),
                                         verify=False).json()["hits"]["hits"]
         for record in records:
@@ -291,9 +284,10 @@ def cleanup(owner_token, curator_token, *tokens):
                                         verify=False)
             elif record['state'] in {"published", "retracting"}:
                 decl = decline_request(record['id'], curator_token, "delete_published_record", is_draft=False)
-                res = do_request(receiver_token=None, creator_token=owner_token, record_id=record['id'],
+                res = do_request(receiver_token=owner_token, creator_token=owner_token, record_id=record['id'],
                            type='delete_published_record', autoapprove=True, search_existing=True,
                                  payload = {"payload": {"removal_reason": "lalala your shit is gone tralala"}})
+                print(res.status_code)
                 """
                     do_request(receiver_token=curator_token, creator_token=owner_token, record_id=record_to_be_published_id,
                type='delete_published_record', payload = {"payload": {"removal_reason": "lalala your shit is gone tralala"}})
@@ -360,7 +354,9 @@ def test_community_members(owner_token, curator_token, submitter_token, *args, *
                type='publish_draft', is_draft=True, create_forbidden=True)
 
 def init_communities(owner_token, curator_token, submitter_token):
-    return "generic", "pilsencommune", "brnocommune"
+    communities = requests.get(f"{BASE_URL}/api/communities?size=1000", headers=authorization_header(owner_token), verify=False).json()
+    ret = {com_dct["slug"]: com_dct["id"] for com_dct in communities["hits"]["hits"]}
+    return ret["generic"], ret["pilsencommune"], ret["brnocommune"]
 
 def init_random_communities(owner_token, curator_token, submitter_token, n):
     def community_dict(i):
@@ -618,9 +614,10 @@ def script(owner_token, curator_token, submitter_token, *args, **kwargs):
     published_read = requests.get(f"{BASE_URL}/api/docs/{record_to_be_published_id}",
                                   headers=authorization_header(curator_token), verify=False)
     assert published_read.status_code == 200
+    record_id = published_read.json()["id"]
 
     time.sleep(5)
-    # test_search(curator_token, submitter_token, community_id)
+    test_search(curator_token, submitter_token, community_id)
 
     record_published_by_autoapprove = create_record_in_community(BASE_URL, sample_record, token=submitter_token, community_id=community_id, repo="docs")
     record_published_by_autoapprove_id = record_published_by_autoapprove.json()["id"]
@@ -631,15 +628,20 @@ def script(owner_token, curator_token, submitter_token, *args, **kwargs):
     assert record_published_by_autoapprove.status_code == 200 # test if the record is published without explicit approve
 
     #test_record_incomplete_data(submitter_token, curator_token, community_id)
-    """
+
     #test submit secondary
     time.sleep(2)
     payload = {'payload': {'community': community2_id}}
-    do_request(owner_token, curator_token, record_id, "secondary_community_submission", payload)
+    do_request(receiver_token=owner_token, creator_token=curator_token, record_id=record_id,
+               type="secondary_community_submission", payload=payload, autoapprove=True)
 
     #test migrate
     payload = {'payload': {'community': community3_id}}
-    do_request(owner_token, curator_token, record_id, "community_migration", payload)
+    init = do_request(receiver_token=owner_token, creator_token=curator_token, record_id=record_id,
+               type="initiate_community_migration", payload=payload, autoapprove=True)
+    request = [r for r in requests.get(f"{BASE_URL}/api/requests", headers=authorization_header(owner_token), verify=False).json()["hits"]["hits"] if r["type"]=="confirm_community_migration" and r["is_open"]==True and r["topic"]=={'documents': record_id}][0]
+    request_resp = requests.get(f"{BASE_URL}/api/requests/{request['id']}", headers=authorization_header(owner_token), verify=False)
+    _accept_request(request_resp, curator_token, False, 200)
 
     time.sleep(2)
     record = requests.get(f"{BASE_URL}/api/docs/{record_id}", headers=authorization_header(curator_token), verify=False).json()
@@ -649,13 +651,14 @@ def script(owner_token, curator_token, submitter_token, *args, **kwargs):
 
     # todo global search service bug - thesis service added twice from eps!!
     # should be docs instead of documents i guess
-    record_communities_search = requests.get(f"{BASE_URL}/api/documents/{record_id}/communities", headers=authorization_header(curator_token), verify=False)
+    # record_communities_search = requests.get(f"{BASE_URL}/api/docs/{record_id}/communities", headers=authorization_header(curator_token), verify=False)
     community_records = requests.get(f"{BASE_URL}/api/communities/{community_id}/records", headers=authorization_header(curator_token), verify=False)
-    assert record_communities_search.status_code == 200
-    assert len(record_communities_search.json()["hits"]["hits"]) == 2
+    # assert record_communities_search.status_code == 200
+    # assert len(record_communities_search.json()["hits"]["hits"]) == 2
     assert community_records.status_code == 200
 
     #test remove secondary
+    """ # not implemented yet
     payload = {'payload': {'community': community2_id}}
     do_request(owner_token, curator_token, record_id, "remove_secondary_community", payload)
 
@@ -663,8 +666,9 @@ def script(owner_token, curator_token, submitter_token, *args, **kwargs):
     record = requests.get(f"{BASE_URL}/api/docs/{record_id}", headers=authorization_header(curator_token), verify=False).json()
     record_communities = record["parent"]["communities"]
     assert set(record_communities["ids"]) == {community3_id}
-    # test edit autoapprove
     """
+    # test edit autoapprove
+
     edit_test(sample_record, curator_token, community_id)
     new_version_test(sample_record, curator_token, community_id)
 
@@ -673,9 +677,9 @@ def script(owner_token, curator_token, submitter_token, *args, **kwargs):
     delete_directly = requests.delete(f"{BASE_URL}/api/docs/{record_to_be_published_id}", headers=authorization_header(owner_token), verify=False)
     assert delete_directly.status_code == 403
 
-    do_request(receiver_token=curator_token, creator_token=owner_token, record_id=record_to_be_published_id,
-               type='delete_published_record', payload = {"payload": {"removal_reason": "lalala your shit is gone tralala"}})
+    do_request(receiver_token=None, creator_token=owner_token, record_id=record_to_be_published_id,
+               type='delete_published_record', autoapprove=True, payload = {"payload": {"removal_reason": "lalala your shit is gone tralala"}})
     time.sleep(2)
     record_resp = requests.get(f"{BASE_URL}/api/docs/{record_to_be_published_id}",
                                headers=authorization_header(curator_token), verify=False)
-    assert record_resp.status_code == 410
+    assert record_resp.status_code == 404

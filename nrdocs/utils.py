@@ -18,10 +18,10 @@ def ui_serialization_header():
     }
 
 def nrdocs_sample_record():
-    return json.load(open("sample_record_affiliations.json", 'r'))
+    return json.load(open("sample_record_affiliations_new.json", 'r'))
 
 def nrdocs_sample_metadata():
-    return json.load(open("sample_record_affiliations.json", 'r'))["metadata"]
+    return json.load(open("sample_record_affiliations_new.json", 'r'))["metadata"]
 
 def nrdocs_sample_metadata_custom(filename):
     return json.load(open(filename, 'r'))["metadata"]
